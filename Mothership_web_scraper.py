@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-get_ipython().system('jupyter nbconvert --to script config_template.ipynb')
-
-
-# In[ ]:
-
 
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -16,9 +5,8 @@ import requests
 from time import sleep
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
-
-
-# In[2]:
+import pandas as pd
+import openpyxl
 
 
 def get_data(url,keywords,title,url_keep,date,text,keyfound):
@@ -44,13 +32,6 @@ def get_data(url,keywords,title,url_keep,date,text,keyfound):
         date.append(date1)
         text.append(body_text)
         keyfound.append(key)
-  
-
-    
-
-
-# In[3]:
-
 
 def get_covid_news(url,related_url):
     source = requests.get(url).content
@@ -70,8 +51,14 @@ def get_covid_news(url,related_url):
     if related_article :
         related_url.append(url)
 
-
-# In[15]:
+def process_data(title,url_keep,date,text,keyfound):
+    dataframe = pd.DataFrame()
+    dataframe["headline"] = title[1:]
+    dataframe["url"] = url_keep[1:]
+    dataframe["date"] = date[1:]
+    dataframe["text"] = text[1:]
+    dataframe["keywords"] = keyfound[1:]
+    return dataframe
 
 
 #scraping via covid 19 tag and searching headlines and body text for mental health keywords
@@ -103,18 +90,10 @@ for div in driver.find_elements_by_class_name('ind-article'):
 driver.close()
 urls_1
 
-
-# In[19]:
-
-
 related_urls_1 = []
 for url in urls_1:
     get_covid_news(url,related_urls_1)
 related_urls_1
-
-
-# In[20]:
-
 
 keyword = []
 with open('Mental health kw.txt', 'r') as text:
@@ -124,10 +103,6 @@ keywords
 for keyword in keywords :
     print(keyword)
 
-
-# In[22]:
-
-
 title = []
 url_keep = []
 date = []
@@ -136,41 +111,10 @@ keyfound = []
 for url in related_urls_1:
     get_data(url,keywords,title,url_keep,date,text,keyfound)
 
-
-# In[23]:
-
-
 url_keep
-
-
-# In[24]:
-
-
-import pandas as pd
-
-
-# In[25]:
-
-
-def process_data(title,url_keep,date,text,keyfound):
-    dataframe = pd.DataFrame()
-    dataframe["headline"] = title[1:]
-    dataframe["url"] = url_keep[1:]
-    dataframe["date"] = date[1:]
-    dataframe["text"] = text[1:]
-    dataframe["keywords"] = keyfound[1:]
-    return dataframe
-
-
-# In[31]:
-
 
 d1 = process_data(title,url_keep,date,text,keyfound)
 d1
-
-
-# In[32]:
-
 
 url_1 = "https://mothership.sg/search/?s=covid+"
 
@@ -204,29 +148,10 @@ for key in keywords:
 print("all done")
 
 
-# In[38]:
-
-
-len(url_search)
-
-
-# In[39]:
-
-
 keywords2 = ["singapore"]
 related_urls_2 =[]
 for url in url_search:
     get_data(url,keywords2,[],related_urls_2,[],[],[])
-
-
-# In[40]:
-
-
-len(related_urls_2)
-
-
-# In[56]:
-
 
 title1 = []
 url_keep1 = []
@@ -236,9 +161,6 @@ keyfound1 = []
 for url in related_urls_2:
     get_data(url,keywords,title1,url_keep1,date1,text1,keyfound1)
 d2 = process_data(title1,url_keep1,date1,text1,keyfound1)
-
-
-# In[44]:
 
 
 #scraping through search mental health then finding covid keywords
@@ -271,52 +193,21 @@ driver.close()
 url_mental
 
 
-# In[52]:
-
-
 title2 = []
 url_keep2 = []
 date2 = []
 text2 = []
 keyfound2 = []
 
-
-# In[47]:
-
-
-
 related_urls_3 = []
 for url in url_mental:
     get_covid_news(url,related_urls_3)
 related_urls_3
 
-
-# In[53]:
-
-
-
 for url in related_urls_3:
     get_data(url,keywords,title2,url_keep2,date2,text2,keyfound2)
 d3 = process_data(title2,url_keep2,date2,text2,keyfound2)
-
-
-# In[54]:
-
-
 d3
-
-
-# In[ ]:
-
-
-
-
-
-# In[64]:
-
-
-
-import openpyxl
 
 path = 'Mothership_scrapings.xlsx'
 
